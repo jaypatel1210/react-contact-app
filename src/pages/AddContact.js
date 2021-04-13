@@ -18,7 +18,6 @@ import { readAndCompressImage } from "browser-image-resizer";
 
 // configs for image resizing
 import { imageConfig } from '../utils/config';
-import { MdAddCircleOutline } from "react-icons/md";
 
 import { v4 } from "uuid";
 
@@ -29,6 +28,7 @@ import { CONTACT_TO_UPDATE } from "../context/action.types";
 import { useHistory } from "react-router-dom";
 
 import { toast } from "react-toastify";
+import ManImg from '../assets/man.png';
 
 const AddContact = () => {
   // destructuring state and dispatch from context state
@@ -45,9 +45,10 @@ const AddContact = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [address, setAddress] = useState("");
   const [isUploading, setIsUploading] = useState(false);
-  const [downloadUrl, setDownloadUrl] = useState(null);
+  const [downloadUrl, setDownloadUrl] = useState('');
   const [star, setStar] = useState(false);
   const [isUpdate, setIsUpdate] = useState(false);
+  const [createdDate, setCreatedDate] = useState(null);
 
   // when their is the contact to update in the Context state
   // then setting state with the value of the contact
@@ -59,8 +60,8 @@ const AddContact = () => {
       setPhoneNumber(contactToUpdate.phoneNumber);
       setAddress(contactToUpdate.address);
       setStar(contactToUpdate.star);
-      setDownloadUrl(contactToUpdate.picture);
-
+      contactToUpdate.picture ? setDownloadUrl(contactToUpdate.picture) : setDownloadUrl('');
+      setCreatedDate(contactToUpdate.created);
       // also setting is update to true to make the update action instead the addContact action
       setIsUpdate(true);
     }
@@ -112,7 +113,6 @@ const AddContact = () => {
           uploadTask.snapshot.ref.getDownloadURL()
           .then((downloadURL) => {
             setDownloadUrl(downloadURL);
-            console.log('File available at', downloadURL);
           })
           .catch(
             () => {
@@ -131,6 +131,7 @@ const AddContact = () => {
   // setting contact to firebase DB
   const addContact = async () => {
     try {
+      const today = new Date();
       firebase.database()
       .ref(`contacts/${v4()}`)
       .set({
@@ -139,7 +140,8 @@ const AddContact = () => {
         phoneNumber,
         address,
         picture: downloadUrl,
-        star
+        star,
+        created: `${today.getDate()}/${today.getMonth()}/${today.getFullYear()} ${today.getHours()}:${today.getMinutes()}`
       });
     } catch (error) {
       console.log(error);
@@ -151,15 +153,17 @@ const AddContact = () => {
   const updateContact = async () => {
     try {
       firebase.database()
-      .ref(`contacts/${contactToUpdateKey}`)
+      .ref(`/contacts/${contactToUpdateKey}`)
       .set({
         name,
         email,
         phoneNumber,
         address,
         picture: downloadUrl,
-        star
+        star,
+        created: createdDate
       });
+      toast('Success', { type: 'success' });
     } catch (error) {
       console.log(error);
       toast('Something Went Wrong', { type: 'warning' });
@@ -170,7 +174,7 @@ const AddContact = () => {
   const handleSubmit = e => {
     e.preventDefault();
     isUpdate ? updateContact() : addContact();
-    toast('Success', { type: 'success' });
+    // toast('Success', { type: 'success' });
     // isUpdate wll be true when the user came to update the contact
     // when their is contact then updating and when no contact to update then adding contact
     //TODO: set isUpdate value
@@ -200,7 +204,9 @@ const AddContact = () => {
               ) : (
                 <div>
                   <label htmlFor="imagepicker" className="">
-                    <img src={downloadUrl} alt="" className="profile" />
+                    <img src={
+                      downloadUrl ? downloadUrl : ManImg
+                    } alt="" className="profile" />
                   </label>
                   <input
                     type="file"

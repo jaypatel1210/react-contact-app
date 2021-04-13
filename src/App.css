@@ -66,3 +66,9 @@ body {
 .cardImg {
   margin-top: -80px;
 }
+.pointer__cursor{
+  cursor: pointer;
+}
+.call__icon{
+  transform: rotate(90deg);
+}

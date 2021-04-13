@@ -11,6 +11,7 @@ import {
 } from "reactstrap";
 import { FaEnvelope, FaMapMarkerAlt, FaPhone } from "react-icons/fa";
 import { ContactContext } from "../context/Context";
+import ManImg from '../assets/man.png';
 
 const ViewContact = () => {
   const { state } = useContext(ContactContext);
@@ -27,7 +28,9 @@ const ViewContact = () => {
                 height="150"
                 width="150"
                 className="cardImg profile border-danger"
-                src={contact?.picture}
+                src={
+                  contact?.picture ? contact?.picture : ManImg
+                }
                 alt="img"
               />
               <CardTitle className="text-primary mt-3">
@@ -35,14 +38,21 @@ const ViewContact = () => {
               </CardTitle>
               <CardSubtitle>
                 <h3>
-                  <FaPhone className="mr-2" />
-                  {contact?.phoneNumber}
+                  <FaPhone className="mr-2 call__icon" />
+                  <a
+                    href={`tel:${contact?.phoneNumber}`}
+                    className="text-dark"
+                    rel="noopener noreferrer"
+                  >
+                    {contact?.phoneNumber}
+                  </a>
                 </h3>
               </CardSubtitle>
               <a
                 className="btn btn-primary btn-block"
                 target="_blank"
-                href={`mailto:{contact?.email}`}
+                href={`mailto:${contact?.email}`}
+                rel="noopener noreferrer"
               >
                 <FaEnvelope className="icon mr-2" />
                 {contact?.email}
@@ -51,7 +61,8 @@ const ViewContact = () => {
               <a
                 className="btn btn-primary btn-block"
                 target="_blank"
-                href={`https://maps.google.com/?=${contact?.address}`}
+                href={`https://maps.google.com/?q=${contact?.address}`}
+                rel="noopener noreferrer"
               >
                 <FaMapMarkerAlt className="icon mr-2" />
                 {contact?.address}

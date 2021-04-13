@@ -16,6 +16,7 @@ import { CONTACT_TO_UPDATE, SET_SINGLE_CONTACT } from '../context/action.types';
 import { useHistory } from "react-router-dom";
 
 import { toast } from "react-toastify";
+import ManImg from '../assets/man.png';
 
 const Contact = ({ contact, contactKey }) => {
 
@@ -102,15 +103,18 @@ const Contact = ({ contact, contactKey }) => {
           md="2"
           className="d-flex justify-content-center align-items-center"
         >
-          <img src={contact.picture} alt="" className="img-circle profile" />
+          <img src={
+            contact.picture ? contact.picture : ManImg
+          } alt="" className="img-circle profile" />
         </Col>
         <Col md="8" onClick={() => viewSingleContact(contact)}>
-          <div className="text-primary">{contact.name}</div>
+          <div className="text-primary pointer__cursor">{contact.name}</div>
 
-          <div className="text-secondary">{contact.phoneNumber}</div>
-          <div className="text-secondary">{contact.email}</div>
+          <div className="text-secondary pointer__cursor">{contact.phoneNumber}</div>
+          <div className="text-secondary pointer__cursor">{contact.email}</div>
 
-          <div className="text-info">{contact.address}</div>
+          <div className="text-info pointer__cursor">{contact.address}</div>
+          <small className="text-dark pointer__cursor">Created: {contact.created}</small>
         </Col>
         <Col
           md="1"
