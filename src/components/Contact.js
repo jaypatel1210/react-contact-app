@@ -1,11 +1,11 @@
 // https://firebase.google.com/docs/database/web/read-and-write?authuser=1#read_data_once
 
-import React, { useContext } from "react";
-import { Row, Col } from "reactstrap";
+import React, { useContext } from 'react';
+import { Row, Col } from 'reactstrap';
 
 // icons
-import { FaRegStar, FaStar } from "react-icons/fa";
-import { MdDelete, MdEdit } from "react-icons/md";
+import { FaRegStar, FaStar } from 'react-icons/fa';
+import { MdDelete, MdEdit } from 'react-icons/md';
 
 import firebase from 'firebase/app';
 
@@ -13,13 +13,12 @@ import firebase from 'firebase/app';
 import { ContactContext } from '../context/Context';
 import { CONTACT_TO_UPDATE, SET_SINGLE_CONTACT } from '../context/action.types';
 
-import { useHistory } from "react-router-dom";
+import { useHistory } from 'react-router-dom';
 
-import { toast } from "react-toastify";
+import { toast } from 'react-toastify';
 import ManImg from '../assets/man.png';
 
 const Contact = ({ contact, contactKey }) => {
-
   const { dispatch } = useContext(ContactContext);
 
   // history hooks to get history
@@ -27,48 +26,47 @@ const Contact = ({ contact, contactKey }) => {
 
   // to delete the contact when delete contact is clicked
   const deleteContact = () => {
-    firebase.database()
-    .ref(`/contacts/${contactKey}`)
-    .remove()
-    .then(
-      () => {
-        toast('Deleted Successfully', { type: 'success' });
-      }
-    )
-    .catch(
-      () => {
-        toast('Something Went Wrong', { type: 'warning' });
-      }
-    );
+    if (
+      contactKey === '31d21dc2-6b0b-4d71-bffd-53c71aaa3d3d' ||
+      contactKey === '40482e0b-7e85-411c-a34e-a51efa67cb7d'
+    ) {
+      toast('Cannot Delete Demo Contacts', { type: 'warning' });
+    } else {
+      firebase
+        .database()
+        .ref(`/contacts/${contactKey}`)
+        .remove()
+        .then(() => {
+          toast('Deleted Successfully', { type: 'success' });
+        })
+        .catch(() => {
+          toast('Something Went Wrong', { type: 'warning' });
+        });
+    }
   };
 
   // update the star/important contact ,ie, star it or unstar the single contact
   const updateImpContact = () => {
-    firebase.database()
-    .ref(`/contacts/${contactKey}`)
-    .update(
-      { star: !contact.star }
-    )
-    .then(
-      () => toast('Contact starred', { type: 'success' })
-    )
-    .catch(
-      () => toast('Something Went Wrong', { type: 'warning' })
-    );
+    firebase
+      .database()
+      .ref(`/contacts/${contactKey}`)
+      .update({ star: !contact.star })
+      .then(() => toast('Contact starred', { type: 'success' }))
+      .catch(() => toast('Something Went Wrong', { type: 'warning' }));
   };
 
   // when the update icon/ pen ion is clicked
   const updateContact = () => {
     // dispatching one action to update contact
-    
+
     dispatch({
       type: CONTACT_TO_UPDATE,
       payload: contact,
-      key: contactKey
+      key: contactKey,
     });
 
     // and pushing to the add contact screen
-    history.push("/contact/add");
+    history.push('/contact/add');
   };
 
   // to view a single contact in the contact/view screen
@@ -77,11 +75,11 @@ const Contact = ({ contact, contactKey }) => {
 
     dispatch({
       type: SET_SINGLE_CONTACT,
-      payload: contact
+      payload: contact,
     });
 
     // sending...
-    history.push("/contact/view");
+    history.push('/contact/view');
   };
 
   return (
@@ -103,18 +101,24 @@ const Contact = ({ contact, contactKey }) => {
           md="2"
           className="d-flex justify-content-center align-items-center"
         >
-          <img src={
-            contact.picture ? contact.picture : ManImg
-          } alt="" className="img-circle profile" />
+          <img
+            src={contact.picture ? contact.picture : ManImg}
+            alt=""
+            className="img-circle profile"
+          />
         </Col>
         <Col md="8" onClick={() => viewSingleContact(contact)}>
           <div className="text-primary pointer__cursor">{contact.name}</div>
 
-          <div className="text-secondary pointer__cursor">{contact.phoneNumber}</div>
+          <div className="text-secondary pointer__cursor">
+            {contact.phoneNumber}
+          </div>
           <div className="text-secondary pointer__cursor">{contact.email}</div>
 
           <div className="text-info pointer__cursor">{contact.address}</div>
-          <small className="text-dark pointer__cursor">Created: {contact.created}</small>
+          <small className="text-dark pointer__cursor">
+            Created: {contact.created}
+          </small>
         </Col>
         <Col
           md="1"

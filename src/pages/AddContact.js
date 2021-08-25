@@ -1,5 +1,5 @@
-import React, { useState, useContext, useEffect } from "react";
-import firebase from "firebase/app";
+import React, { useState, useContext, useEffect } from 'react';
+import firebase from 'firebase/app';
 
 import {
   Container,
@@ -10,24 +10,24 @@ import {
   Button,
   Spinner,
   Row,
-  Col
-} from "reactstrap";
+  Col,
+} from 'reactstrap';
 
 // to compress image before uploading to the server
-import { readAndCompressImage } from "browser-image-resizer";
+import { readAndCompressImage } from 'browser-image-resizer';
 
 // configs for image resizing
 import { imageConfig } from '../utils/config';
 
-import { v4 } from "uuid";
+import { v4 } from 'uuid';
 
 // context stuffs
-import { ContactContext } from "../context/Context";
-import { CONTACT_TO_UPDATE } from "../context/action.types";
+import { ContactContext } from '../context/Context';
+import { CONTACT_TO_UPDATE } from '../context/action.types';
 
-import { useHistory } from "react-router-dom";
+import { useHistory } from 'react-router-dom';
 
-import { toast } from "react-toastify";
+import { toast } from 'react-toastify';
 import ManImg from '../assets/man.png';
 
 const AddContact = () => {
@@ -40,10 +40,10 @@ const AddContact = () => {
   const history = useHistory();
 
   // simple state of all component
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [address, setAddress] = useState("");
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [address, setAddress] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [downloadUrl, setDownloadUrl] = useState('');
   const [star, setStar] = useState(false);
@@ -60,7 +60,9 @@ const AddContact = () => {
       setPhoneNumber(contactToUpdate.phoneNumber);
       setAddress(contactToUpdate.address);
       setStar(contactToUpdate.star);
-      contactToUpdate.picture ? setDownloadUrl(contactToUpdate.picture) : setDownloadUrl('');
+      contactToUpdate.picture
+        ? setDownloadUrl(contactToUpdate.picture)
+        : setDownloadUrl('');
       setCreatedDate(contactToUpdate.created);
       // also setting is update to true to make the update action instead the addContact action
       setIsUpdate(true);
@@ -73,7 +75,7 @@ const AddContact = () => {
       const file = e.target.files[0];
 
       var metaData = {
-        contentType: file.type
+        contentType: file.type,
       };
 
       let reziedImage = await readAndCompressImage(file, imageConfig);
@@ -87,7 +89,8 @@ const AddContact = () => {
         firebase.storage.TaskEvent.STATE_CHANGED,
         snapshot => {
           setIsUploading(true);
-          var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          var progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
 
           switch (snapshot.state) {
             case firebase.storage.TaskState.PAUSED:
@@ -100,28 +103,26 @@ const AddContact = () => {
             default:
               break;
           }
-          
+
           if (progress === 100) {
             setIsUploading(false);
             toast('File Uploaded', { type: 'success' });
-          } 
+          }
         },
         err => {
           toast('Something Went Wrong', { type: 'warning' });
         },
         () => {
-          uploadTask.snapshot.ref.getDownloadURL()
-          .then((downloadURL) => {
-            setDownloadUrl(downloadURL);
-          })
-          .catch(
-            () => {
+          uploadTask.snapshot.ref
+            .getDownloadURL()
+            .then(downloadURL => {
+              setDownloadUrl(downloadURL);
+            })
+            .catch(() => {
               toast('Something Went Wrong', { type: 'warning' });
-            }
-          );
+            });
         }
-      )
-
+      );
     } catch (error) {
       console.log(error);
       toast('Something Went Wrong', { type: 'warning' });
@@ -132,17 +133,24 @@ const AddContact = () => {
   const addContact = async () => {
     try {
       const today = new Date();
-      firebase.database()
-      .ref(`contacts/${v4()}`)
-      .set({
-        name,
-        email,
-        phoneNumber,
-        address,
-        picture: downloadUrl,
-        star,
-        created: `${today.getDate()}/${today.getMonth()}/${today.getFullYear()} ${today.getHours()}:${today.getMinutes()}`
-      });
+
+      if (!name) return toast('Enter Name', { type: 'error' });
+      if (!email) return toast('Enter Email', { type: 'error' });
+      if (!phoneNumber) return toast('Enter Phone Number', { type: 'error' });
+
+      firebase
+        .database()
+        .ref(`contacts/${v4()}`)
+        .set({
+          name,
+          email,
+          phoneNumber,
+          address,
+          picture: downloadUrl,
+          star,
+          created: `${today.getDate()}/${today.getMonth()}/${today.getFullYear()} ${today.getHours()}:${today.getMinutes()}`,
+        });
+      history.push('/');
     } catch (error) {
       console.log(error);
       toast('Something Went Wrong', { type: 'warning' });
@@ -152,18 +160,20 @@ const AddContact = () => {
   // to handle update the contact when there is contact in state and the user had came from clicking the contact update icon
   const updateContact = async () => {
     try {
-      firebase.database()
-      .ref(`/contacts/${contactToUpdateKey}`)
-      .set({
+      if (!name) return toast('Enter Name', { type: 'error' });
+      if (!email) return toast('Enter Email', { type: 'error' });
+      if (!phoneNumber) return toast('Enter Phone Number', { type: 'error' });
+      firebase.database().ref(`/contacts/${contactToUpdateKey}`).set({
         name,
         email,
         phoneNumber,
         address,
         picture: downloadUrl,
         star,
-        created: createdDate
+        created: createdDate,
       });
       toast('Success', { type: 'success' });
+      history.push('/');
     } catch (error) {
       console.log(error);
       toast('Something Went Wrong', { type: 'warning' });
@@ -177,18 +187,13 @@ const AddContact = () => {
     // toast('Success', { type: 'success' });
     // isUpdate wll be true when the user came to update the contact
     // when their is contact then updating and when no contact to update then adding contact
-    //TODO: set isUpdate value
 
     // to handle the bug when the user visit again to add contact directly by visiting the link
     dispatch({
       type: CONTACT_TO_UPDATE,
       payload: null,
-      key: null
+      key: null,
     });
-
-    // after adding/updating contact then sending to the contacts
-    // TODO:- also sending when their is any errors
-    history.push("/");
   };
 
   // return the spinner when the image has been added in the storage
@@ -204,9 +209,11 @@ const AddContact = () => {
               ) : (
                 <div>
                   <label htmlFor="imagepicker" className="">
-                    <img src={
-                      downloadUrl ? downloadUrl : ManImg
-                    } alt="" className="profile" />
+                    <img
+                      src={downloadUrl ? downloadUrl : ManImg}
+                      alt=""
+                      className="profile"
+                    />
                   </label>
                   <input
                     type="file"
@@ -269,7 +276,7 @@ const AddContact = () => {
                     setStar(!star);
                   }}
                   checked={star}
-                />{" "}
+                />{' '}
                 <span className="text-right">Mark as Star</span>
               </Label>
             </FormGroup>
@@ -279,7 +286,7 @@ const AddContact = () => {
               block
               className="text-uppercase"
             >
-              {isUpdate ? "Update Contact" : "Add Contact"}
+              {isUpdate ? 'Update Contact' : 'Add Contact'}
             </Button>
           </Form>
         </Col>

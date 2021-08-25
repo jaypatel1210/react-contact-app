@@ -1,17 +1,17 @@
-import React, { useReducer, useEffect } from "react";
+import React, { useReducer, useEffect } from 'react';
 
-import { Container } from "reactstrap";
+import { Container } from 'reactstrap';
 
 // react-router-dom3
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 // react toastify stuffs
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // bootstrap css
-import "bootstrap/dist/css/bootstrap.min.css";
-import "./App.css";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './App.css';
 
 // firebase stuffs
 import { firebaseConfig } from './utils/config';
@@ -20,12 +20,12 @@ import 'firebase/database';
 import 'firebase/storage';
 
 // components
-import AddContact from "./pages/AddContact";
-import Contacts from "./pages/Contacts";
-import Header from "./layout/Header";
-import Footer from "./layout/Footer";
-import ViewContact from "./pages/ViewContact";
-import PageNotFound from "./pages/PageNotFound";
+import AddContact from './pages/AddContact';
+import Contacts from './pages/Contacts';
+import Header from './layout/Header';
+import Footer from './layout/Footer';
+import ViewContact from './pages/ViewContact';
+import PageNotFound from './pages/PageNotFound';
 
 // context api stuffs
 import reducer from './context/reducer';
@@ -41,7 +41,7 @@ const initialState = {
   contact: {},
   contactToUpdate: null,
   contactToUpdateKey: null,
-  isLoading: false
+  isLoading: false,
 };
 
 const App = () => {
@@ -51,21 +51,20 @@ const App = () => {
   const getContacts = async () => {
     dispatch({
       type: SET_LOADING,
-      payload: true
+      payload: true,
     });
 
     const contactRef = await firebase.database().ref('contacts/');
     contactRef.on('value', snapshot => {
       dispatch({
         type: SET_CONTACT,
-        payload: snapshot.val()
+        payload: snapshot.val(),
       });
       dispatch({
         type: SET_LOADING,
-        payload: false
+        payload: false,
       });
     });
-
   };
 
   // getting contact  when component did mount
